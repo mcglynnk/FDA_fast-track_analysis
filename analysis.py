@@ -152,14 +152,18 @@ len(fda_ft[fda_ft['90d_over_m'] > 4.2])/len(fda_ft['90d_over_m']) # 34.3%
 # What percent did better than 10% at 90d?
 len(fda_ft[fda_ft['90d_over_m'] > 10])/len(fda_ft['90d_over_m']) # 28.5%
 
+import matplotlib.pyplot as plt
 
 # Plot distributions
 fig = plt.figure()
-#plt.title("Distribution of stock value gains relative to market post-fast track designation")
-fig.set_size_inches(5,9)
+# fig, ax = plt.subplots()
+fig.set_size_inches(17,5)
+
+fig.suptitle("Distribution of stock value gains relative to market post-fast track designation \n",
+            fontsize=19, x=0.5, y=1)
 
 for column, n in zip(['30d_over_m', '60d_over_m', '90d_over_m'], range(1,4)):
-    ax = fig.add_subplot(3,1, n)
+    ax = fig.add_subplot(1,3, n)
     column = '{}'.format(column)
     time_period = column[0:2]
 
@@ -169,12 +173,18 @@ for column, n in zip(['30d_over_m', '60d_over_m', '90d_over_m'], range(1,4)):
     # Plot
     sns.distplot(fda_ft[column])
 
+    # plt.subplots_adjust(top=0.5)
     plt.xlim(-100,100)
     plt.xticks(np.arange(-100,100,step=20))
     # plt.yticks(np.arange(0, max(fda_ft[column]), step=0.01))
     plt.ylabel('Proportion of companies')
     plt.xlabel('Stock gains (% rel. to market) {}d post-fast track designation'.format(time_period))
 
+#fig.tight_layout(pad=0.5)
+#plt.subplots_adjust(top=1.9)
+fig.subplots_adjust(top=0.4)
 plt.show()
+
+fig.savefig('name.png', bbox_inches='tight')
 
 
