@@ -8,6 +8,7 @@ compared to 2.40 years (n=12) for large-cap companies. By 90 days after fast-tra
 performed 4.2% better on average than the overall market during the same time period, 
 with 28.5% of companies outperforming the market by 10% or more. The chart below shows the distribution of companies' performance
 over market!       
+<br />
 ![FDA_ft_chart](https://github.com/mcglynnk/FDA_fast-track_analysis/blob/master/name.png) 
 
 ### Project Structure:  
