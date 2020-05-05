@@ -2,7 +2,6 @@
 import pandas as pd
 import numpy as np
 from bs4 import BeautifulSoup
-import mechanicalsoup
 import requests
 
 pd.options.display.max_columns = 20
@@ -10,7 +9,9 @@ pd.options.display.width = 200
 pd.options.display.max_colwidth = 20
 
 ##
-fda_ft_2019 = pd.read_excel(r"..\ft_2018_2019_2.xlsx", header=0)
+from required_files import fast_track_list_xlsx
+
+fda_ft_2019 = pd.read_excel(fast_track_list_xlsx, header=0)
 
 fda_ft_2019
 
@@ -55,12 +56,12 @@ for idx, i in enumerate(fda_ft_2019.values):
     #user_agent = 'Mozilla/5.0 Chrome/60.0.3112.50'
     #chrome_options.add_argument('user-agent={0}'.format(user_agent))
     chrome_options.add_argument('--headless')  # suppress opening a browser
-    driver = webdriver.Chrome(r"..\chromedriver_83.exe",
+    driver = webdriver.Chrome(r"data/chromedriver_83.exe",
                               options=chrome_options
                               )
     print("Collecting data on {}...".format(fda_ft_2019.iloc[idx]['Applicant']))
 
-    # Approval date
+    # FDA approval date
     url = 'https://www.accessdata.fda.gov/scripts/cder/daf/'
     driver.get(url)
 
@@ -85,12 +86,11 @@ for idx, i in enumerate(fda_ft_2019.values):
         print("FDA approval date not found.")
         all_data_collec['FDA_approved'] = 'not found'
 
-    if fda_ft_2019.iloc[idx]['ticker'] != 'priv':
+    if fda_ft_2019.iloc[idx]['ticker'] != 'priv': # If not a private company, search for stock price history
         # Stock prices
         print("Searching for stock prices for the first three months after fast track designation...")
         url1 = 'https://finance.yahoo.com/quote/{}?p={}&.tsrc=fin-srch'.format(fda_ft_2019.iloc[idx]['ticker'],
                                                                               fda_ft_2019.iloc[idx]['ticker'])
-
         driver.get(url1)
 
         # Market cap
@@ -118,6 +118,7 @@ for idx, i in enumerate(fda_ft_2019.values):
                   )
             print('-' *6, 'at_ft', '-' * 12, '30d', '-' * 12, '60d', '-' * 12, '90d', '-' * 6)
 
+            # Locate price data
             dropdown = driver.find_element_by_xpath(
                 '//*[@id="Col1-1-HistoricalDataTable-Proxy"]/section/div[1]/div[1]/div[1]/div/div/div/span')
             dropdown.click()
@@ -128,7 +129,6 @@ for idx, i in enumerate(fda_ft_2019.values):
             enddate_box.send_keys(edate)
             submit_button = driver.find_element_by_xpath('//*[@id="dropdown-menu"]/div/div[3]/button[1]')
             submit_button.click()
-            #print("Submitting dates...")
 
             appl = driver.find_element_by_xpath(
                 '//*[@id="Col1-1-HistoricalDataTable-Proxy"]/section/div[1]/div[1]/button/span')
@@ -139,6 +139,7 @@ for idx, i in enumerate(fda_ft_2019.values):
                 '#Col1-1-HistoricalDataTable-Proxy > section > div.Pb\(10px\).Ovx\('
                 'a\).W\(100\%\) > table > tbody')
 
+            # Extract price data from price history table
             all = []
             for row in table_:
                 x = row.text.split('\n')
@@ -291,6 +292,7 @@ for idx, i in enumerate(fda_ft_2019.values):
     if idx % 3 == 0:
         pd.DataFrame(all_data).to_csv(r"..\SCRAPED_DATA.csv")
 
+    # Combine all collected data
     info_df = pd.DataFrame(all_data)
     print(info_df)
     print('\n')
@@ -300,6 +302,6 @@ print(info_df)
 
 
 # Save final results
-info_df.to_csv(r"..\SCRAPED_DATA.csv")
+info_df.to_csv(r"data\SCRAPED_DATA.csv")
 
 
